@@ -23,7 +23,7 @@ S = create_stoichiometric_matrix(model)
 # replace _ with a binary representation of S.
 # S_bin should only contain floating point numbers (either 0. or 1.)
 
-S_bin = _
+S_bin = np.where(S!=0., 1., 0.)
 
 ###### Don't touch
 def test_binary_stoichiometry_matrix():
@@ -33,7 +33,7 @@ def test_binary_stoichiometry_matrix():
 
 # 2. Compute reaction adjacency matrix A_v.
 
-A_v = _
+A_v = S_bin.T.dot(S_bin)
 
 ###### Don't touch
 def test_reaction_adjacency_matrix():
@@ -43,7 +43,7 @@ def test_reaction_adjacency_matrix():
 
 # 3. Compute compound adjacency matrix A_x.
 
-A_x = _
+A_x =  S_bin.dot(S_bin.T)
 
 ###### Don't touch
 def test_compound_adjacency_matrix():
@@ -60,7 +60,7 @@ def test_compound_adjacency_matrix():
 # replace _ with the most connected metabolite in the model;
 # needs to be of type cobra.core.metabolite.Metabolite (you can check with type())
 # e.g. type(model.metabolites[0]) == cobra.core.metabolite.Metabolite
-most_connected_metabolite = _
+most_connected_metabolite = model.metabolites[42]
 
 ###### Don't touch
 def test_most_connected_metabolite():
@@ -77,7 +77,7 @@ def test_most_connected_metabolite():
 # also supports model.metabolites.index(your_metabolite).
 
 # Replace _ with the number of reactions apt_c participates in (should be a number).
-atp_participation = _
+atp_participation = 13
 
 ###### Don't touch
 def test_atp_participation():
@@ -95,7 +95,7 @@ def test_atp_participation():
 
 
 # Replace _ with number of metabolites ACALD and ALCD2x share (should be a number).
-metabolites_in_common = _
+metabolites_in_common = 4
 
 
 ###### Don't touch
@@ -114,7 +114,10 @@ def test_ACALD_ALCAD2x_metabolites_in_common():
 
 # Replace _ with a list of metabolites (all of type cobra.core.metabolite.Metabolite) that
 # correspond to the top 10 most connected metabolites (in ascending order)
-top10 = [item[0] for item in metabolite_degree_zip][0:10]
+connectivity = sorted(list(zip(model.metabolites, A_x.diagonal())), key= lambda item: item[1], reverse = True) 
+res = list(zip(*connectivity))
+
+top10 = list(res[0][:10])
 
 ###### Don't touch
 def test_top10():
